@@ -22,22 +22,31 @@ module Mac(clk, rst, stream_i, stream_o, ack, stb, type_i, type_o, mac_i, mac_o,
     inout ETH_PHY_MDIO;
 
     reg [7: 0] frame[0: 1525];
-    reg tx_en, last_tx;
+    reg tx_en, last_tx, rx_en, last_rx;
     reg [9: 0] tx_cnt, rx_cnt;
-    reg [7: 0] data;
+    reg [7: 0] tx_data, rx_data;
 
     initial begin
         tx_en = 0;
+        rx_en = 0;
         last_tx = 0;
+        last_rx = 0;
         tx_cnt = 0;
         rx_cnt = 0;
+        tx_data = 0;
+        rx_data = 0;
     end
 
     // sync the transmit clk;
     assign ETH_TXC = clk;
     assign ETH_TX_EN = tx_en;
 
-    // Transmition
+    // Receive from IP
+    always @(posedge clk or negedge clk) begin
+         
+    end
+
+    // Transmition to PHY
     always @(posedge clk or negedge clk) begin
         if (clk) begin
             // posedge
@@ -67,7 +76,7 @@ module Mac(clk, rst, stream_i, stream_o, ack, stb, type_i, type_o, mac_i, mac_o,
         end
     end
 
-    // Receive
+    // Receive from PHY
     always @(posedge clk or negedge clk) begin
         if (clk) begin
             // posedge 
