@@ -1,8 +1,9 @@
-module mac_rx(clk, ctl, reset, rxd, data);
+module mac_rx(clk, rx_ctl, reset, rxd, data, ready);
 
-    input clk, ctl, rst;
+    input clk, rx_ctl, rst;
     input [3: 0] rxd;
-    output reg [7: 0] data;
+    output reg [15: 0] data;
+    output reg ready;
 
     localparam
         IDLE = 0,
@@ -44,6 +45,8 @@ module mac_rx(clk, ctl, reset, rxd, data);
     // state machine
     always @(*) begin
         state_next = 0;
+        data_count_next = 0;
+        ready = 0;
         case (state)
             IDLE: begin
                 if (rx_dv) begin
@@ -79,9 +82,16 @@ module mac_rx(clk, ctl, reset, rxd, data);
             DATA: begin
                 if (rx_rising && !rx_dv) begin
                     // done receiving
-                    state_next = DONE;;
+                    state_next = DONE;
                 end else begin
                     // receiving
+                    if (rx_falling) begin
+                        if (data_count == 3) begin
+                            // received 16 bits, call top to retrieve the data
+                            // top module should retrieve the data within a half clock
+                            ready = 1;
+                        end
+                    end
                     state_next = DATA;
                 end
             end
@@ -91,8 +101,28 @@ module mac_rx(clk, ctl, reset, rxd, data);
         endcase
     end
 
+    // divide rx_dv & rx_err from rx_ctl
     always @(posedge rx_rising) begin
-        
+        if (reset) begin
+            rx_dv <= 0;
+        end else begin
+            rx_dv <= rx_ctl;
+        end
+    end
+
+    always @(posedge rx_falling) begin
+        if (reset) begin
+            rx_err <= 0;
+        end else begin
+            rx_err <= rx_ctl;
+        end
+    end
+
+    // receiving data
+    always @(posedge rx_rising or posedge rx_falling) begin
+        if (state == DATA) begin
+            data[15: 12] <= rxd;
+        end
     end
 
 endmodule

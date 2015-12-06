@@ -1,4 +1,4 @@
-module Mac(clk, rst, stream_i, stream_o, ack, stb, type_i, type_o, mac_i, mac_o, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_RST_N, ETH_RXC, ETH_RX_EN, ETH_RXD, ETH_TXC, ETH_TX_EN, ETH_TXD);
+module Mac_top(clk, rst, stream_i, stream_o, ack, stb, type_i, type_o, mac_i, mac_o, ETH_PHY_MDC, ETH_PHY_MDIO, ETH_PHY_RST_N, ETH_RXC, ETH_RX_EN, ETH_RXD, ETH_TXC, ETH_TX_EN, ETH_TXD);
 
     input clk, rst;
     input [7: 0] stream_i;
